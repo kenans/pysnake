@@ -4,6 +4,7 @@
 import time
 import random
 import time
+import threading
 
 class Snake(object):
     UP, DOWN, LEFT, RIGHT = -1,1,-2,2
@@ -152,27 +153,33 @@ class ConsolePaintHandler(object):
     def draw_point(self, p):
         self.buf[p[1]][p[0]] = '*'
     def paint(self):
-        import os
         import platform
-        if platform.system() == 'Windows':
+        import os
+        plat_os = platform.system()
+        if plat_os == 'Windows':
             os.system("cls")
         else:
             os.system("clear")
+        
+        if plat_os != 'Windows':
+            os.system("stty cbreak -echo")
         count = len(self.buf)
         for i in range(count):
             print ''.join(self.buf[count - i - 1])
+        if plat_os != 'Windows':
+            os.system("stty -cbreak echo")
 
 class QtPaintHandler(object):
     pass
 
 class GameSnake(object):
-    M_X_MAX = 50
+    M_X_MAX = 30
     M_X_MIN = 0
-    M_Y_MAX = 30
+    M_Y_MAX = 20
     M_Y_MIN = 0
-    S_INIT_X = 9
+    S_INIT_X = 8
     S_INIT_Y = 1
-    S_INIT_L = 9
+    S_INIT_L = 7
     def __init__(self):
         # Initialize the game
         self.snake = Snake(
@@ -276,8 +283,7 @@ class GameSnake(object):
             self.game_paint.draw_snake(self.snake)
             self.game_paint.paint()
             # Delay
-            time.sleep(0.01)
-
+            time.sleep(0.1)
     def key_thread(self):
         import getkey
         getch = getkey.Getch()
@@ -297,13 +303,9 @@ class GameSnake(object):
                 self.snake.turn(key)
             time.sleep(0.1)
 def main():
-    from threading import Thread
-
     game = GameSnake()
     game.game_start()
-    Thread(target = game.key_thread).start() 
-    #Thread(target = game.paint_thread).start()
-    Thread(target = game.main_thread).start()
-
+    threading.Thread(target = game.key_thread).start() 
+    threading.Thread(target = game.main_thread).start()
 if __name__ == '__main__':
     main()

@@ -18,14 +18,18 @@ class _GetchUnix:
     def __init__(self):  
         import tty, sys, termios # import termios now or else you'll get the Unix version on the Mac  
     def __call__(self):  
-        import sys, tty, termios  
-        fd = sys.stdin.fileno()  
-        old_settings = termios.tcgetattr(fd)  
+        import os
+        import sys, tty, termios
+        #fd = sys.stdin.fileno()  
+        #old_settings = termios.tcgetattr(fd)  
         try:  
-            tty.setraw(sys.stdin.fileno())  
+            #tty.setraw(sys.stdin.fileno())  
+            #tty.setraw(fd)  
+            os.system("stty cbreak -echo")
             ch = sys.stdin.read(1)  
         finally:  
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)  
+            #termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)  
+            os.system("stty -cbreak echo")
         return ch  
 
 class _GetchWindows:  
@@ -59,5 +63,8 @@ class _GetchMacCarbon:
 if __name__ == '__main__': # a little test  
    print 'Press a key'  
    inkey = Getch()  
-   k = inkey()
-   print 'you pressed ',k,ord(k)
+   while True:
+       k = inkey()
+       if k=='x':
+           break
+       print 'you pressed ',k,ord(k)
