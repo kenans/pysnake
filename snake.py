@@ -162,7 +162,11 @@ class ConsolePaintHandler(object):
                     new_buf[i] += point
         #print new_buf
         import os
-        os.system("cls")
+        import platform
+        if platform.system() == 'Windows':
+            os.system("cls")
+        else:
+            os.system("clear")
         for i in range(count):
             print new_buf[count - i - 1]
 
@@ -215,6 +219,7 @@ class GameSnake(object):
             h_s = s
         print "Score:", s
         print "Highest Score:", h_s
+        print "Press any key to exit"
     def game_getscore(self):
         try:
             f = open("log", "rU")
@@ -301,13 +306,31 @@ class GameSnake(object):
                 self.snake.turn(key)
             time.sleep(0.1)
 def main():
+    import platform
     from threading import Thread
-    game = GameSnake()
-    game.game_start()
-    #game.main_thread()
-    Thread(target = game.key_thread).start() 
-    #Thread(target = game.paint_thread).start()
-    Thread(target = game.main_thread).start()
+    os_type = platform.system()
+
+    if os_type == 'Windows':
+        game = GameSnake()
+        game.game_start()
+        Thread(target = game.key_thread).start() 
+        #Thread(target = game.paint_thread).start()
+        Thread(target = game.main_thread).start()
+    elif os_type == 'Linux':
+        print 'Warning: on Linux, key press function is not implemented'
+        game = GameSnake()
+        game.game_start()
+        Thread(target = game.main_thread).start()
+        pass
+    elif os_type == 'Darwin':
+        print 'Warning: on MacOS, key press function is not implemented'
+        game = GameSnake()
+        game.game_start()
+        Thread(target = game.main_thread).start()
+        pass
+    else:
+        print "Sorry, game doesn't support this platform"
+        pass 
 
 if __name__ == '__main__':
     main()
