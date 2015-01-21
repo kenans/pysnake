@@ -124,13 +124,13 @@ class ConsolePaintHandler(object):
         self.y_max = y_max+1
         self.y_min = y_min
         self.scale = scale
-        self.buf = [None] * self.y_max
+        self.buf = [' '] * self.y_max
         for i in range(self.y_max):
-            self.buf[i] = [None] * self.x_max
+            self.buf[i] = [' '] * self.x_max
     def clear_buf(self):
         for i in range(self.y_max):
             for j in range(self.x_max):
-                self.buf[i][j] = None
+                self.buf[i][j] = ' '
     def draw_line(self, p1, p2):
         if p1[0] == p2[0]:
             # Horizontal
@@ -152,23 +152,15 @@ class ConsolePaintHandler(object):
     def draw_point(self, p):
         self.buf[p[1]][p[0]] = '*'
     def paint(self):
-        count = len(self.buf)
-        new_buf = ['']*count
-        for i in range(count):
-            for point in self.buf[i]:
-                if point == None:
-                    new_buf[i] += ' '
-                else:
-                    new_buf[i] += point
-        #print new_buf
         import os
         import platform
         if platform.system() == 'Windows':
             os.system("cls")
         else:
             os.system("clear")
+        count = len(self.buf)
         for i in range(count):
-            print new_buf[count - i - 1]
+            print ''.join(self.buf[count - i - 1])
 
 class QtPaintHandler(object):
     pass
@@ -287,50 +279,31 @@ class GameSnake(object):
             time.sleep(0.01)
 
     def key_thread(self):
-        from msvcrt import getch
+        import getkey
+        getch = getkey.Getch()
         while self.start == True:
             key = None
-            base = getch()
-            if base == '\xe0':
-                sub = getch()
-                if sub == 'H':
-                    key = Snake.UP
-                elif sub == 'M':
-                    key = Snake.RIGHT
-                elif sub == 'P':
-                    key = Snake.DOWN
-                elif sub == 'K':
-                    key = Snake.LEFT
+            c = getch()
+            if c == 'w':
+                key = Snake.UP
+            elif c == 'd':
+                key = Snake.RIGHT
+            elif c == 's':
+                key = Snake.DOWN
+            elif c == 'a':
+                key = Snake.LEFT
             # Turn ?
             if key != None:
                 self.snake.turn(key)
             time.sleep(0.1)
 def main():
-    import platform
     from threading import Thread
-    os_type = platform.system()
 
-    if os_type == 'Windows':
-        game = GameSnake()
-        game.game_start()
-        Thread(target = game.key_thread).start() 
-        #Thread(target = game.paint_thread).start()
-        Thread(target = game.main_thread).start()
-    elif os_type == 'Linux':
-        print 'Warning: on Linux, key press function is not implemented'
-        game = GameSnake()
-        game.game_start()
-        Thread(target = game.main_thread).start()
-        pass
-    elif os_type == 'Darwin':
-        print 'Warning: on MacOS, key press function is not implemented'
-        game = GameSnake()
-        game.game_start()
-        Thread(target = game.main_thread).start()
-        pass
-    else:
-        print "Sorry, game doesn't support this platform"
-        pass 
+    game = GameSnake()
+    game.game_start()
+    Thread(target = game.key_thread).start() 
+    #Thread(target = game.paint_thread).start()
+    Thread(target = game.main_thread).start()
 
 if __name__ == '__main__':
     main()
