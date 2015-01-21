@@ -1,5 +1,9 @@
 This is a small snake game writing with python.
 
-21/01/2015
+20/01/2015
 The game only supports Windows. The GUI is simply done using a command line
 shell.
+
+21/01/2015
+The game supports now Windows/Linux/MacOS
+

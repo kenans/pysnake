@@ -287,50 +287,45 @@ class GameSnake(object):
             time.sleep(0.01)
 
     def key_thread(self):
-        from msvcrt import getch
+        import getkey
+        getch = getkey.Getch()
         while self.start == True:
             key = None
-            base = getch()
-            if base == '\xe0':
-                sub = getch()
-                if sub == 'H':
-                    key = Snake.UP
-                elif sub == 'M':
-                    key = Snake.RIGHT
-                elif sub == 'P':
-                    key = Snake.DOWN
-                elif sub == 'K':
-                    key = Snake.LEFT
+            c = getch()
+            if c == 'w':
+                key = Snake.UP
+            elif c == 'd':
+                key = Snake.RIGHT
+            elif c == 's':
+                key = Snake.DOWN
+            elif c == 'a':
+                key = Snake.LEFT
+        #from msvcrt import getch
+        #while self.start == True:
+        #    key = None
+        #    base = getch()
+        #    if base == '\xe0':
+        #        sub = getch()
+        #        if sub == 'H':
+        #            key = Snake.UP
+        #        elif sub == 'M':
+        #            key = Snake.RIGHT
+        #        elif sub == 'P':
+        #            key = Snake.DOWN
+        #        elif sub == 'K':
+        #            key = Snake.LEFT
             # Turn ?
             if key != None:
                 self.snake.turn(key)
             time.sleep(0.1)
 def main():
-    import platform
     from threading import Thread
-    os_type = platform.system()
 
-    if os_type == 'Windows':
-        game = GameSnake()
-        game.game_start()
-        Thread(target = game.key_thread).start() 
-        #Thread(target = game.paint_thread).start()
-        Thread(target = game.main_thread).start()
-    elif os_type == 'Linux':
-        print 'Warning: on Linux, key press function is not implemented'
-        game = GameSnake()
-        game.game_start()
-        Thread(target = game.main_thread).start()
-        pass
-    elif os_type == 'Darwin':
-        print 'Warning: on MacOS, key press function is not implemented'
-        game = GameSnake()
-        game.game_start()
-        Thread(target = game.main_thread).start()
-        pass
-    else:
-        print "Sorry, game doesn't support this platform"
-        pass 
+    game = GameSnake()
+    game.game_start()
+    Thread(target = game.key_thread).start() 
+    #Thread(target = game.paint_thread).start()
+    Thread(target = game.main_thread).start()
 
 if __name__ == '__main__':
     main()
