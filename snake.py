@@ -6,6 +6,7 @@ import random
 import time
 import threading
 import drawhandler
+import getkey
 
 class Snake(object):
     UP, DOWN, LEFT, RIGHT = -1,1,-2,2
@@ -113,9 +114,9 @@ class GamePaint(object):
         self.draw_handler.paint()
 
 class GameSnake(object):
-    M_X_MAX = 30
+    M_X_MAX = 40
     M_X_MIN = 0
-    M_Y_MAX = 20
+    M_Y_MAX = 30
     M_Y_MIN = 0
     S_INIT_X = 8
     S_INIT_Y = 1
@@ -225,7 +226,6 @@ class GameSnake(object):
             # Delay
             time.sleep(0.1)
     def key_thread(self):
-        import getkey
         getch = getkey.Getch()
         while self.start == True:
             key = None
@@ -243,6 +243,15 @@ class GameSnake(object):
                 self.snake.turn(key)
             time.sleep(0.1)
 def main():
+    print '  Snake  '
+    print 'Up:     w'
+    print 'Down:   s'
+    print 'Left:   a'
+    print 'Right:  d'
+    print 'Press any key to start...'
+    getch = getkey.Getch()
+    c = getch()
+
     game = GameSnake()
     game.game_start()
     threading.Thread(target = game.key_thread).start() 
