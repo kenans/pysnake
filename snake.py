@@ -21,12 +21,16 @@ class Snake(object):
         self.speed = 1 # This should be a constant. Only the 'game speed' changes
         self.__init_trace()
         self.print_init()
+        self.__turnbuf = []   # This records to-do turning list, TODO: thread sync?
     # -----------------  Public methods  -----------------------
     def grow(self):
         self.length += 1
     def turn(self, direction):
+        # Warning: This method is likely called by other thread
         if self.direction + direction != 0:
-            self.direction = direction
+            self.__turnbuf.append(direction)
+        if len(self.__turnbuf) > 0:
+            self.direction = self.__turnbuf.pop(0)
     def move(self):
         if self.direction == Snake.UP:
             self.y += self.speed
