@@ -22,16 +22,20 @@ class Snake(object):
         self.__init_trace()
         self.print_init()
         self.__turnbuf = []   # This records to-do turning list, TODO: thread sync?
+        self.__turned = True  # Only if turned, we accept the next turn
     # -----------------  Public methods  -----------------------
     def grow(self):
         self.length += 1
     def turn(self, direction):
         # Warning: This method is likely called by other thread
-        if self.direction + direction != 0:
+        # To solve the problem, we simply buf at most 3 keys
+        if self.direction != direction and \
+           self.direction + direction != 0 and \
+           len(self.__turnbuf) < 1:
             self.__turnbuf.append(direction)
+    def move(self):
         if len(self.__turnbuf) > 0:
             self.direction = self.__turnbuf.pop(0)
-    def move(self):
         if self.direction == Snake.UP:
             self.y += self.speed
         elif self.direction == Snake.DOWN:
@@ -40,8 +44,7 @@ class Snake(object):
             self.x -= self.speed
         elif self.direction == Snake.RIGHT:
             self.x += self.speed
-        # Renew trace
-        # Do not delete the last point of trace when moving
+        # If grow, do not delete the last point of trace when moving
         if self.length == len(self.trace):
             self.trace.pop()
         self.trace.insert(0, [self.x, self.y])
@@ -54,11 +57,11 @@ class Snake(object):
         print 'Initialize a snake:'
         print '  self.trace=', self.trace
         print '  self.len=', self.length
-        print '  self.directrion=', self.direction
+        print '  self.direction=', self.direction
     def print_snake(self):
         print 'self.trace=', self.trace
         #print 'self.len=', self.length
-        #print 'self.directrion=', self.direction
+        #print 'self.direction=', self.direction
     
 class Food(object):
     def __init__(self, x=0, y=0):
@@ -183,21 +186,13 @@ class GameSnake(object):
         count = 0
         while True:
             if self.start == True and self.pause == False:
-                # Paint first !
-                self.game_paint.repaint()
-                self.game_paint.draw_map(self.game_map)
-                self.game_paint.draw_food(self.food)
-                self.game_paint.draw_snake(self.snake)
-                self.game_paint.paint()
-                # Snake move
-                self.snake.move()
-                # Dead ?
-                if self.snake.trace[0][0] in \
-                       [self.game_map.x_max, self.game_map.x_min] or \
-                   self.snake.trace[0][1] in \
-                       [self.game_map.y_max, self.game_map.y_min] or \
-                   self.snake.trace[0] in self.snake.trace[1:]:
-                    break
+                ##
+                #  Warning: This order should not be changed
+                #      1. Grow
+                #      2. Move
+                #      3. Paint
+                #      4. Dead
+                ##
                 # Grow ?
                 if self.snake.trace[0] == [self.food.x, self.food.y]:
                     self.snake.grow()
@@ -216,6 +211,21 @@ class GameSnake(object):
                                 self.game_map.y_min+1, 
                                 self.game_map.y_max-1)
                     self.food.renew(x_new, y_new)
+                # Snake move
+                self.snake.move()
+                # Paint first !
+                self.game_paint.repaint()
+                self.game_paint.draw_map(self.game_map)
+                self.game_paint.draw_food(self.food)
+                self.game_paint.draw_snake(self.snake)
+                self.game_paint.paint()
+                # Dead ?
+                if self.snake.trace[0][0] in \
+                       [self.game_map.x_max, self.game_map.x_min] or \
+                   self.snake.trace[0][1] in \
+                       [self.game_map.y_max, self.game_map.y_min] or \
+                   self.snake.trace[0] in self.snake.trace[1:]:
+                    break
                 # Delay
                 time.sleep(0.1)
         self.game_over()
