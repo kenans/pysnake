@@ -121,7 +121,7 @@ class GamePaint(object):
         self.draw_handler.paint()
 
 class GameSnake(object):
-    M_X_MAX = 40
+    M_X_MAX = 30
     M_X_MIN = 0
     M_Y_MAX = 30
     M_Y_MIN = 0
